@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripe_payment/src/token.dart';
+import 'package:stripe_payment/src/source_params_meta.dart';
 
 class SourceParams {
   int amount;
@@ -11,6 +12,7 @@ class SourceParams {
   String country;
   String email;
   CreditCard card;
+  SourceParamsMeta metadata;
 
   SourceParams(
       {this.amount,
@@ -21,7 +23,9 @@ class SourceParams {
       this.statementDescriptor,
       this.country,
       this.email,
-      this.card});
+      this.card,
+        this.metadata,
+      });
 
   factory SourceParams.fromJson(Map<String, dynamic> json) {
     return SourceParams(
@@ -47,6 +51,9 @@ class SourceParams {
     if (this.country != null) data['country'] = this.country;
     if (this.email != null) data['email'] = this.email;
     if (this.card != null) data['card'] = this.card.toJson();
+    if (this.metadata != null) data['metadata'] = this.metadata.toJson();
     return data;
   }
 }
+
+
