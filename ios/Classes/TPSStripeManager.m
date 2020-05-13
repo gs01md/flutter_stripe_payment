@@ -708,6 +708,9 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
     }
     if ([sourceType isEqualToString:@"alipay"]) {
         sourceParams = [STPSourceParams alipayParamsWithAmount:[[params objectForKey:@"amount"] unsignedIntegerValue] currency:params[@"currency"] returnURL:params[@"returnURL"]];
+        if(params && params[@"metadata"] && params[@"metadata"][@'orderNo']){
+            sourceParams.metadata = params[@"metadata"][@'orderNo'];
+        }
     }
     if ([sourceType isEqualToString:@"card"]) {
         sourceParams = [STPSourceParams cardParamsWithCard:[self extractCardParamsFromDictionary:params]];
