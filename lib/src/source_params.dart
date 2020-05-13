@@ -24,8 +24,7 @@ class SourceParams {
       this.country,
       this.email,
       this.card,
-        this.metadata,
-      });
+      this.metadata});
 
   factory SourceParams.fromJson(Map<String, dynamic> json) {
     return SourceParams(
@@ -37,7 +36,8 @@ class SourceParams {
         statementDescriptor: json['statement_descriptor'],
         country: json['country'],
         email: json['email'],
-        card: json['card']);
+        card: json['card'],
+        metadata: json['metadata']);
   }
 
   Map<String, dynamic> toJson() {
@@ -47,7 +47,8 @@ class SourceParams {
     if (this.returnURL != null) data['returnURL'] = this.returnURL;
     if (this.type != null) data['type'] = this.type;
     if (this.name != null) data['name'] = this.name;
-    if (this.statementDescriptor != null) data['statement_descriptor'] = this.statementDescriptor;
+    if (this.statementDescriptor != null)
+      data['statement_descriptor'] = this.statementDescriptor;
     if (this.country != null) data['country'] = this.country;
     if (this.email != null) data['email'] = this.email;
     if (this.card != null) data['card'] = this.card.toJson();
@@ -55,5 +56,3 @@ class SourceParams {
     return data;
   }
 }
-
-
