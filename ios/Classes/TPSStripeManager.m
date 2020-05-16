@@ -733,6 +733,35 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
 
         }
     }
+
+    if ([sourceType isEqualToString:@"wechat"]) {
+        sourceParams = [STPSourceParams wechatPayParamsWithAmount:[[params objectForKey:@"amount"] unsignedIntegerValue] currency:params[@"currency"] appId:@"lingoaceparentapp" statementDescriptor:params[@"statementDescriptor"]]
+
+        // 添加metadata
+        if(params[@"metadata"] && [params[@"metadata"] isKindOfClass:[NSDictionary class]]){
+
+            NSDictionary *dict = params[@"metadata"];
+
+            NSArray *keysArray = [dict allKeys];
+
+            NSMutableDictionary *paraDict = [[NSMutableDictionary alloc]init];
+
+            for (int i = 0; i < keysArray.count; i++) {
+
+                NSString *key = keysArray[i];
+
+                NSString *value = dict[key];
+
+                if(!value) value = @"";
+
+                [paraDict setValue:value forKey:key];
+            }
+
+            sourceParams.metadata = paraDict;
+
+        }
+    }
+
     if ([sourceType isEqualToString:@"card"]) {
         sourceParams = [STPSourceParams cardParamsWithCard:[self extractCardParamsFromDictionary:params]];
     }
@@ -1627,6 +1656,8 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
             return @"threeDSecure";
         case STPSourceTypeAlipay:
             return @"alipay";
+        case STPSourceTypeWeChatPay:
+            return @"wechat";
         case STPSourceTypeUnknown:
         default:
             return @"unknown";
