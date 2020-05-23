@@ -825,7 +825,7 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
 }
 
 ///根据SourceId获取Source并支付
--(void)retrieveSourceWithSourceId:(NSDictionary *)params
+-(void)retrieveSourceWithParams:(NSDictionary *)params
                      resolver:(RCTPromiseResolveBlock)resolve
                      rejecter:(RCTPromiseRejectBlock)reject {
     if(!requestIsCompleted) {
