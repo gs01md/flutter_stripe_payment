@@ -735,7 +735,7 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
     }
 
     if ([sourceType isEqualToString:@"wechat"]) {
-        sourceParams = [STPSourceParams wechatPayParamsWithAmount:[[params objectForKey:@"amount"] unsignedIntegerValue] currency:params[@"currency"] appId:@"lingoaceparentapp" statementDescriptor:params[@"statementDescriptor"]]
+        sourceParams = [STPSourceParams wechatPayParamsWithAmount:[[params objectForKey:@"amount"] unsignedIntegerValue] currency:params[@"currency"] appId:@"lingoaceparentapp" statementDescriptor:params[@"statementDescriptor"]];
 
         // 添加metadata
         if(params[@"metadata"] && [params[@"metadata"] isKindOfClass:[NSDictionary class]]){
