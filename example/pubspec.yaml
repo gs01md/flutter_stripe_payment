@@ -1,6 +1,8 @@
 name: stripe_payment_example
 description: Demonstrates how to use the stripe_payment plugin.
 
+version: 1.0.0+1
+
 dependencies:
   flutter:
     sdk: flutter

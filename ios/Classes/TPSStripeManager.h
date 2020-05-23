@@ -82,6 +82,11 @@ typedef void (^RCTPromiseRejectBlock)(NSString *code, NSString *message, NSError
                      resolver:(RCTPromiseResolveBlock)resolve
                      rejecter:(RCTPromiseRejectBlock)reject;
 
+///根据SourceId获取Source并发起支付
+-(void)retrieveSourceWithSourceId:(NSDictionary *)params
+                     resolver:(RCTPromiseResolveBlock)resolve
+                     rejecter:(RCTPromiseRejectBlock)reject;
+
 -(void)paymentRequestWithCardForm:(NSDictionary *)options
                          resolver:(RCTPromiseResolveBlock)resolve
                          rejecter:(RCTPromiseRejectBlock)reject;

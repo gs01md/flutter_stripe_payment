@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
-@import stripe_payment;
+//@import stripe_payment;
 #import <Stripe/Stripe.h>
 
 @implementation AppDelegate
