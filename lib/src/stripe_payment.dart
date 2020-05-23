@@ -139,6 +139,12 @@ class StripePayment {
     return Source.fromJson(source);
   }
 
+  static Future<Source> retrieveSourceWithParams(SourceParams options) async {
+    final source = await _channel.invokeMethod("retrieveSourceWithParams", options.toJson());
+    return Source.fromJson(source);
+  }
+
+
   /// https://tipsi.github.io/tipsi-stripe/docs/createPaymentMethod.html
   static Future<PaymentMethod> createPaymentMethod(PaymentMethodRequest request) async {
     final paymentMethod = await _channel.invokeMethod("createPaymentMethod", request.toJson());

@@ -58,7 +58,9 @@
         [stripeModule createTokenWithBankAccount:call.arguments resolver:result rejecter:rejecter];
     } else if ([@"createSourceWithParams" isEqualToString:call.method]) {
         [stripeModule createSourceWithParams:call.arguments resolver:result rejecter:rejecter];
-    } else if ([@"paymentRequestWithCardForm" isEqualToString:call.method]) {
+    } else if ([@"retrieveSourceWithParams" isEqualToString:call.method]) {
+        [stripeModule retrieveSourceWithParams:call.arguments resolver:result rejecter:rejecter];
+    }else if ([@"paymentRequestWithCardForm" isEqualToString:call.method]) {
         [stripeModule paymentRequestWithCardForm:call.arguments resolver:result rejecter:rejecter];
     } else if ([@"paymentRequestWithApplePay" isEqualToString:call.method]) {
         [stripeModule paymentRequestWithApplePay:call.arguments[@"items"] withOptions:call.arguments[@"options"] resolver:result rejecter:rejecter];
