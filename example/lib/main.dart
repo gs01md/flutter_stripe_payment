@@ -17,11 +17,12 @@ class _MyAppState extends State<MyApp> {
   Token _paymentToken;
   PaymentMethod _paymentMethod;
   String _error;
-  final String _currentSecret = "pi_1Gmf3IBYSfzmQ0X0DyFndo00_secret_PS4M7ZAR3Dy0YT0vBRh0UVFlM"; //set this yourself, e.g using curl
+  String _currentSecret = "pi_1Gmf3IBYSfzmQ0X0DyFndo00_secret_PS4M7ZAR3Dy0YT0vBRh0UVFlM"; //set this yourself, e.g using curl
   PaymentIntentResult _paymentIntent;
   Source _source;
   String _publishkey = "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE";
 
+  TextEditingController _textEditingController = TextEditingController();
 
   final SourceParamsMeta metadata = SourceParamsMeta(clientSecret: "src_client_secret_7xAWMAr4gFov9C9Msd6Fwwc1",sourceId: "src_1GmVqlBYSfzmQ0X0xKtLzU40");
 
@@ -43,8 +44,8 @@ class _MyAppState extends State<MyApp> {
 //    StripePayment.setOptions(
 //        StripeOptions(publishableKey: "pk_live_9sToM3y44pnZZmRcOUgK9nir00xO0zn2QR", merchantId: "Test", androidPayMode: 'test'));
 
-    StripePayment.setOptions(
-        StripeOptions(publishableKey: "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE"));
+//    StripePayment.setOptions(
+//        StripeOptions(publishableKey: "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE"));
 
   }
 
@@ -247,20 +248,41 @@ class _MyAppState extends State<MyApp> {
             ),
 
             RaisedButton(
-              child: Text("Change publish key"),
+              child: Text("pk_test_vMUYmBzs0sPgYjDp6w1fS7Dh00IpT8FBoa Change publish key"),
               onPressed: () {
-                if(_publishkey == "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE"){
 
-                  StripePayment.setOptions(
-                      StripeOptions(publishableKey: "pk_test_vMUYmBzs0sPgYjDp6w1fS7Dh00IpT8FBoa"));
-                }else{
-
-                  StripePayment.setOptions(
-                      StripeOptions(publishableKey: "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE"));
-                }
+                StripePayment.setOptions(
+                    StripeOptions(publishableKey: "pk_test_vMUYmBzs0sPgYjDp6w1fS7Dh00IpT8FBoa"));
 
               },
             ),
+
+
+            RaisedButton(
+              child: Text("pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE   Change publish key"),
+              onPressed: () {
+
+                StripePayment.setOptions(
+                    StripeOptions(publishableKey: "pk_test_Cy9HMsNMRIRGfs4QC4nbcVJa00BYF9YJuE"));
+
+
+              },
+            ),
+
+            TextField(
+              controller: _textEditingController,
+            ),
+
+            RaisedButton(
+              child: Text("生效Secret"),
+              onPressed: () {
+
+                _currentSecret = _textEditingController.text.trim();
+
+
+              },
+            ),
+
 
             Divider(),
             Text('Current source:'),

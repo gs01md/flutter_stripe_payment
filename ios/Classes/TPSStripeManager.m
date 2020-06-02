@@ -934,6 +934,7 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
     [configuration setPublishableKey:nextPublishableKey];
 
     STPAddCardViewController *vc = [[STPAddCardViewController alloc] initWithConfiguration:configuration theme:theme];
+    vc.apiClient = [self newAPIClient];
     vc.delegate = self;
     vc.prefilledInformation = prefilledInformation;
     // STPAddCardViewController must be shown inside a UINavigationController.
