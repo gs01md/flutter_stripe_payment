@@ -934,7 +934,10 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
     [configuration setPublishableKey:nextPublishableKey];
 
     STPAddCardViewController *vc = [[STPAddCardViewController alloc] initWithConfiguration:configuration theme:theme];
+
+    ///解决 Stripe 银行卡支付不能更改账号的bug
     vc.apiClient = [self newAPIClient];
+
     vc.delegate = self;
     vc.prefilledInformation = prefilledInformation;
     // STPAddCardViewController must be shown inside a UINavigationController.
