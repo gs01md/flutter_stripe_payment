@@ -42,6 +42,10 @@ class StripePaymentPlugin(private val stripeModule: StripeModule) : MethodCallHa
                 ReadableMap(call.arguments as Map<String, Any>),
                 Promise(result)
             )
+            "retrieveSourceWithParams" -> stripeModule.retrieveSourceWithParams(
+                    ReadableMap(call.arguments as Map<String, Any>),
+                    Promise(result)
+            )
             "createPaymentMethod" -> stripeModule.createPaymentMethod(
                 ReadableMap(call.arguments as Map<String, Any>),
                 Promise(result)
