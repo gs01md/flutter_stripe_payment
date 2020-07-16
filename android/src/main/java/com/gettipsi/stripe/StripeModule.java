@@ -390,35 +390,43 @@ public class StripeModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void retrieveSourceWithParams(final ReadableMap options, final Promise promise) {
 
-    ReadableMap metadata = options.getMap("metadata");
-    String sourceId = metadata.getString("sourceId");
-    String clientSecret = metadata.getString("clientSecret");
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
 
-    try {
-      Source source = mStripe.retrieveSourceSynchronous(sourceId, clientSecret);
+        try {
+          ReadableMap metadata = options.getMap("metadata");
+          String sourceId = metadata.getString("sourceId");
+          String clientSecret = metadata.getString("clientSecret");
 
-      if (Source.SourceFlow.REDIRECT.equals(source.getFlow())) {
-        Activity currentActivity = getCurrentActivity();
-        if (currentActivity == null) {
-          promise.reject(
-                  getErrorCode(mErrorCodes, "activityUnavailable"),
-                  getDescription(mErrorCodes, "activityUnavailable")
-          );
-        } else {
-          mCreateSourcePromise = promise;
-          mCreatedSource = source;
-          String redirectUrl = source.getRedirect().getUrl();
-          Intent browserIntent = new Intent(currentActivity, OpenBrowserActivity.class)
-                  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                  .putExtra(OpenBrowserActivity.EXTRA_URL, redirectUrl);
-          currentActivity.startActivity(browserIntent);
+          Source source = mStripe.retrieveSourceSynchronous(sourceId, clientSecret);
+
+          if (Source.SourceFlow.REDIRECT.equals(source.getFlow())) {
+            Activity currentActivity = getCurrentActivity();
+            if (currentActivity == null) {
+              promise.reject(
+                      getErrorCode(mErrorCodes, "activityUnavailable"),
+                      getDescription(mErrorCodes, "activityUnavailable")
+              );
+            } else {
+              mCreateSourcePromise = promise;
+              mCreatedSource = source;
+              String redirectUrl = source.getRedirect().getUrl();
+              Intent browserIntent = new Intent(currentActivity, OpenBrowserActivity.class)
+                      .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                      .putExtra(OpenBrowserActivity.EXTRA_URL, redirectUrl);
+              currentActivity.startActivity(browserIntent);
+            }
+          } else {
+            promise.resolve(convertSourceToWritableMap(source));
+          }
+
+        } catch (Exception error) {
+          promise.reject(toErrorCode(error), error.getMessage());
         }
-      } else {
-        promise.resolve(convertSourceToWritableMap(source));
+
       }
-    } catch (Exception error) {
-      promise.reject(toErrorCode(error), error.getMessage());
-    }
+    }).start();
 
 
   }
