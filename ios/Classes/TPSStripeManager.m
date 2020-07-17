@@ -1359,9 +1359,12 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
     [RCTPresentedViewController() dismissViewControllerAnimated:YES completion:nil];
 
     if (!requestIsCompleted) {
+        NSLog("addCardViewControllerDidCancel -- requestIsCompleted = YES ");
         requestIsCompleted = YES;
         NSDictionary *error = [errorCodes valueForKey:kErrorKeyCancelled];
         [self rejectPromiseWithCode:error[kErrorKeyCode] message:error[kErrorKeyDescription]];
+    }else{
+        NSLog("addCardViewControllerDidCancel -- requestIsCompleted = YES ");
     }
 }
 
