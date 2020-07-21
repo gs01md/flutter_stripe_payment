@@ -828,6 +828,7 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
 -(void)retrieveSourceWithParams:(NSDictionary *)params
                      resolver:(RCTPromiseResolveBlock)resolve
                      rejecter:(RCTPromiseRejectBlock)reject {
+
     if(!requestIsCompleted) {
         NSDictionary *error = [errorCodes valueForKey:kErrorKeyBusy];
         reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
@@ -839,6 +840,7 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
 
     NSString * sourceId = dict[@"sourceId"];
     NSString * clientSecret = dict[@"clientSecret"];
+    NSString *sourceType = params[@"type"];
 
     if (!sourceId) {
         sourceId = @"";
@@ -850,6 +852,36 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
 
     STPAPIClient* stripeAPIClient = [self newAPIClient];
 
+//    STPSourceParams *sourceParams = [STPSourceParams wechatPayParamsWithAmount:1
+//                                                                      currency:@"sgd"
+//                                                                         appId:@"wx13bba80f4a585352"
+//                                                           statementDescriptor:nil];
+//    [[STPAPIClient sharedClient] createSourceWithParams:sourceParams completion:^(STPSource *source, NSError *error) {
+//        if (source == nil || error) {
+//
+//            NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyApi];
+//            reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
+//        }else{
+//
+//            self.redirectContext = [[STPRedirectContext alloc] initWithSource:source completion:^(NSString *sourceID, NSString *clientSecret, NSError *error) {
+//
+//                NSLog(@"source.redirect.returnURL：%@;  source.redirect.url: %@; source.id:%@", source.redirect.returnURL,source.redirect.url,sourceID);
+//
+//                [self checkError:error resolver:resolve rejecter:reject source:sourceId secret:clientSecret stripe:stripeAPIClient];
+//
+//
+//            }];
+//
+//            [self.redirectContext startRedirectFlowFromViewController:self];
+//        }
+//
+//
+//    }];
+//
+//    self->requestIsCompleted = YES;
+//
+//    return;
+
     [stripeAPIClient retrieveSourceWithId:sourceId clientSecret:clientSecret completion:^(STPSource *source, NSError *error) {
         self->requestIsCompleted = YES;
 
@@ -857,54 +889,80 @@ void initializeTPSPaymentNetworksWithConditionalMappings() {
             NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyApi];
             reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
         } else {
-            if (source.redirect) {
+
+            NSLog(@"source.redirect.returnURL：%@;  source.redirect.url: %@", source.redirect.returnURL,source.redirect.url);
+
+            if (source.redirect || [sourceType isEqualToString:@"wechat"] ) {
                 self.redirectContext = [[STPRedirectContext alloc] initWithSource:source completion:^(NSString *sourceID, NSString *clientSecret, NSError *error) {
-                    if (error) {
-                        NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyRedirectSpecific];
-                        reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
-                    } else {
-                        [stripeAPIClient startPollingSourceWithId:sourceID clientSecret:clientSecret timeout:10 completion:^(STPSource *source, NSError *error) {
-                            if (error) {
-                                NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyApi];
-                                reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
-                            } else {
-                                switch (source.status) {
-                                    case STPSourceStatusChargeable:
-                                    case STPSourceStatusConsumed:
-                                        resolve([self convertSourceObject:source]);
-                                        break;
-                                    case STPSourceStatusCanceled: {
-                                        NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusCanceled];
-                                        reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
-                                    }
-                                        break;
-                                    case STPSourceStatusPending: {
-                                        NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusPending];
-                                        reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
-                                    }
-                                        break;
-                                    case STPSourceStatusFailed: {
-                                        NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusFailed];
-                                        reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
-                                    }
-                                        break;
-                                    case STPSourceStatusUnknown: {
-                                        NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusUnknown];
-                                        reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
-                                    }
-                                        break;
-                                }
-                            }
-                        }];
-                    }
+
+                    [self checkError:error resolver:resolve rejecter:reject source:sourceId secret:clientSecret stripe:stripeAPIClient];
+
                 }];
-                [self.redirectContext startSafariAppRedirectFlow];
+
+                if([sourceType isEqualToString:@"wechat"] ){
+                    [self.redirectContext startRedirectFlowFromViewController:self];
+                }else{
+
+                    [self.redirectContext startSafariAppRedirectFlow];
+                }
             } else {
                 resolve([self convertSourceObject:source]);
             }
         }
     }];
+
+
 }
+
+
+
+- (void)checkError:(NSError * )error
+          resolver:(RCTPromiseResolveBlock)resolve
+          rejecter:(RCTPromiseRejectBlock)reject
+            source:(NSString *)sourceID
+            secret:(NSString *)clientSecret
+            stripe:(STPAPIClient*) stripeAPIClient{
+
+    if (error) {
+          NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyRedirectSpecific];
+          reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
+      } else {
+          [stripeAPIClient startPollingSourceWithId:sourceID clientSecret:clientSecret timeout:10 completion:^(STPSource *source, NSError *error) {
+              if (error) {
+                  NSDictionary *jsError = [self->errorCodes valueForKey:kErrorKeyApi];
+                  reject(jsError[kErrorKeyCode], error.localizedDescription, nil);
+              } else {
+                  switch (source.status) {
+                      case STPSourceStatusChargeable:
+                      case STPSourceStatusConsumed:
+                          resolve([self convertSourceObject:source]);
+                          break;
+                      case STPSourceStatusCanceled: {
+                          NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusCanceled];
+                          reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
+                      }
+                          break;
+                      case STPSourceStatusPending: {
+                          NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusPending];
+                          reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
+                      }
+                          break;
+                      case STPSourceStatusFailed: {
+                          NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusFailed];
+                          reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
+                      }
+                          break;
+                      case STPSourceStatusUnknown: {
+                          NSDictionary *error = [self->errorCodes valueForKey:kErrorKeySourceStatusUnknown];
+                          reject(error[kErrorKeyCode], error[kErrorKeyDescription], nil);
+                      }
+                          break;
+                  }
+              }
+          }];
+      }
+}
+
 
 
 -(void)paymentRequestWithCardForm:(NSDictionary *)options
