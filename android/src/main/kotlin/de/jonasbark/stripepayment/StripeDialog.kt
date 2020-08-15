@@ -1,6 +1,7 @@
 package de.jonasbark.stripepayment
 
 import android.app.DialogFragment
+import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -30,8 +31,8 @@ class StripeDialog : DialogFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.activity_stripe, container)
     }
@@ -64,11 +65,15 @@ class StripeDialog : DialogFragment() {
     var tokenListener: ((PaymentMethod) -> (Unit))? = null
 
     private fun getToken() {
+        var progressDialog : ProgressDialog;
+        progressDialog = ProgressDialog.
+                show(dialog.context,"","Loading",false,false);
         val mCardInputWidget =
-            view?.findViewById<View>(R.id.card_input_widget) as CardMultilineWidget
+                view?.findViewById<View>(R.id.card_input_widget) as CardMultilineWidget
 
         if (mCardInputWidget.validateAllFields()) {
-
+            
+            progressDialog.show();
             mCardInputWidget.card?.let { card ->
 
                 view?.findViewById<View>(R.id.progress)?.visibility = View.VISIBLE
@@ -76,37 +81,38 @@ class StripeDialog : DialogFragment() {
 
                 val paymentMethodParamsCard = card.toPaymentMethodParamsCard()
                 val paymentMethodCreateParams = PaymentMethodCreateParams.create(
-                    paymentMethodParamsCard,
-                    PaymentMethod.BillingDetails.Builder().build()
+                        paymentMethodParamsCard,
+                        PaymentMethod.BillingDetails.Builder().build()
                 )
 
                 stripeInstance.createPaymentMethod(
-                    paymentMethodCreateParams,
-                    object : ApiResultCallback<PaymentMethod> {
-                        override fun onSuccess(result: PaymentMethod) {
-                            view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
-                            view?.findViewById<View>(R.id.buttonSave)?.visibility = View.GONE
-
-                            tokenListener?.invoke(result)
-                            dismiss()
-                        }
-
-                        override fun onError(error: Exception) {
-                            view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
-                            view?.findViewById<View>(R.id.buttonSave)?.visibility = View.VISIBLE
-                            view?.let {
-                                Snackbar.make(it, error.localizedMessage, Snackbar.LENGTH_LONG)
-                                    .show()
+                        paymentMethodCreateParams,
+                        object : ApiResultCallback<PaymentMethod> {
+                            override fun onSuccess(result: PaymentMethod) {
+                                view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
+                                view?.findViewById<View>(R.id.buttonSave)?.visibility = View.GONE
+                                progressDialog?.dismiss();
+                                tokenListener?.invoke(result)
+                                dismiss()
                             }
-                        }
 
-                    })
+                            override fun onError(error: Exception) {
+                                progressDialog?.dismiss();
+                                view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
+                                view?.findViewById<View>(R.id.buttonSave)?.visibility = View.VISIBLE
+                                view?.let {
+                                    Snackbar.make(it, error.localizedMessage, Snackbar.LENGTH_LONG)
+                                            .show()
+                                }
+                            }
+
+                        })
 
             }
         } else {
             view?.let {
                 Snackbar.make(it, "The card info you entered is not correct", Snackbar.LENGTH_LONG)
-                    .show()
+                        .show()
             }
         }
 
