@@ -42,6 +42,7 @@ class StripeDialog : DialogFragment() {
         // Fetch arguments from bundle and set title
         val title = arguments?.getString("title", "Add Source")
         dialog?.setTitle(title)
+        dialog?.setCanceledOnTouchOutside(false);
         view.findViewById<View>(R.id.buttonSave)?.setOnClickListener {
             getToken()
         }
@@ -64,15 +65,11 @@ class StripeDialog : DialogFragment() {
     var tokenListener: ((PaymentMethod) -> (Unit))? = null
 
     private fun getToken() {
-        var progressDialog : ProgressDialog;
-        progressDialog = ProgressDialog.
-                show(dialog.context,"","Loading",false,false);
         val mCardInputWidget =
                 view?.findViewById<View>(R.id.card_input_widget) as CardMultilineWidget
 
         if (mCardInputWidget.validateAllFields()) {
-            
-            progressDialog.show();
+
             mCardInputWidget.card?.let { card ->
 
                 view?.findViewById<View>(R.id.progress)?.visibility = View.VISIBLE
@@ -90,13 +87,11 @@ class StripeDialog : DialogFragment() {
                             override fun onSuccess(result: PaymentMethod) {
                                 view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
                                 view?.findViewById<View>(R.id.buttonSave)?.visibility = View.GONE
-                                progressDialog?.dismiss()
                                 tokenListener?.invoke(result)
                                 dismiss()
                             }
 
                             override fun onError(error: Exception) {
-                                progressDialog?.dismiss();
                                 view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
                                 view?.findViewById<View>(R.id.buttonSave)?.visibility = View.VISIBLE
                                 view?.let {
